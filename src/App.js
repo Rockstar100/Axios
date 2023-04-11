@@ -1,40 +1,54 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import './App.css';
-import Navbar from './Navbar';
-import Home from "./Home";
-import About from "./About";
-import Contact from "./Contact";
-import NotFound from "./NotFound";
-import Dashboard from "./Dashboard";
-import Acount from "./Acount";
-import Setting from "./Setting";
+import { useState, useEffect } from "react";
+import "./App.css";
+import axios from "axios";
+
+
+
 
 
 function App() {
+
+  const [myData, setMyData] = useState([]);
+  const [isError, setIsError] = useState("");
+
+  // useEffect(() => {
+  //   axios
+  //     .get("https://jsonplaceholder.typicode.com/posts")
+  //     .then((response) => setMyData(response.data))
+  //     .catch((error) => setIsError(error.message));
+  // }, []);
+
+
+  const getMyPostData = async () => {
+    try {
+      const res = await axios.get("https://jsonplaceholder.typicode.com/posts");
+      setMyData(res.data);
+    } catch (error) {
+      setIsError(error.message);
+    }
+  };
+
+  useEffect(() => {
+    getMyPostData();
+  }, []);
+
+
   return (
     <>
-    
-    <BrowserRouter>
-      <Routes>
-       
-       
-        <Route path="/" element={<Home/>}/>
-        <Route path="/Home" element={<Home/>}/>
-        <Route path="/About" element={<About/>}/>
-        <Route path="/Contact" element={<Contact/>}/>
-        <Route path="Dashboard" >
-          <Route index element={<Dashboard />} />
-          <Route path="Acount/:id" element={<Acount />} />
-          <Route path="Setting" element={<Setting />} />
-        </Route>
-        <Route path="/*" element={<NotFound/>}/>
-        
-      
+      <h1 className="Heading">Axios</h1>
+      {isError !== "" && <h2>{isError}</h2>}
 
-      </Routes>
-      <Navbar/>
-    </BrowserRouter>
- 
+      <div className="grid">
+        {myData.slice(0, 15).map((post) => {
+          const { body, id, title } = post;
+          return (
+            <div key={id} className="card">
+              <h2>{title.slice(0, 15).toUpperCase()}</h2>
+              <p>{body.slice(0, 100)}</p>
+            </div>
+          );
+        })}
+      </div>
     </>
   );
 }
